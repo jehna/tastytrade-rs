@@ -7,7 +7,9 @@ use crate::api::base::Result;
 use crate::client::TastyTrade;
 
 use super::base::{Items, Paginated};
-use super::order::{DryRunResult, LiveOrderRecord, Order, OrderId, OrderPlacedResult, PriceEffect};
+use super::order::{
+    DryRunResult, FullOrder, LiveOrderRecord, Order, OrderId, OrderPlacedResult, PriceEffect,
+};
 use super::position::FullPosition;
 
 impl TastyTrade {
@@ -74,18 +76,27 @@ pub struct Account<'t> {
     tasty: &'t TastyTrade,
 }
 
-impl<'t> Account<'t> {
+pub struct AccountActions<'t> {
+    tasty: &'t TastyTrade,
+    account_number: AccountNumber,
+}
+
+impl<'t> AccountActions<'t> {
+    pub fn new(tasty: &'t TastyTrade, account_number: AccountNumber) -> Self {
+        Self {
+            tasty,
+            account_number,
+        }
+    }
+
     pub fn number(&self) -> AccountNumber {
-        self.inner.account.account_number.clone()
+        self.account_number.clone()
     }
 
     pub async fn balance(&self) -> Result<Balance> {
         let resp = self
             .tasty
-            .get(&format!(
-                "/accounts/{}/balances",
-                self.inner.account.account_number.0
-            ))
+            .get(&format!("/accounts/{}/balances", self.account_number.0))
             .await?;
         Ok(resp)
     }
@@ -100,10 +111,7 @@ impl<'t> Account<'t> {
         let resp: Paginated<BalanceSnapshot> = self
             .tasty
             .get_with_query(
-                &format!(
-                    "/accounts/{}/balance-snapshots",
-                    self.inner.account.account_number.0
-                ),
+                &format!("/accounts/{}/balance-snapshots", self.account_number.0),
                 &[
                     ("start-date", &start_date.format("%Y-%m-%d").to_string()),
                     ("end-date", &end_date.format("%Y-%m-%d").to_string()),
@@ -115,13 +123,18 @@ impl<'t> Account<'t> {
         Ok(resp)
     }
 
+    pub async fn orders(&self) -> Result<Vec<FullOrder>> {
+        let resp: Items<FullOrder> = self
+            .tasty
+            .get(&format!("/accounts/{}/orders", self.account_number.0))
+            .await?;
+        Ok(resp.items)
+    }
+
     pub async fn positions(&self) -> Result<Vec<FullPosition>> {
         let resp: Items<FullPosition> = self
             .tasty
-            .get(&format!(
-                "/accounts/{}/positions",
-                self.inner.account.account_number.0
-            ))
+            .get(&format!("/accounts/{}/positions", self.account_number.0))
             .await?;
         Ok(resp.items)
     }
@@ -129,10 +142,7 @@ impl<'t> Account<'t> {
     pub async fn live_orders(&self) -> Result<Vec<LiveOrderRecord>> {
         let resp: Items<LiveOrderRecord> = self
             .tasty
-            .get(&format!(
-                "/accounts/{}/orders/live",
-                self.inner.account.account_number.0
-            ))
+            .get(&format!("/accounts/{}/orders/live", self.account_number.0))
             .await?;
         Ok(resp.items)
     }
@@ -141,10 +151,7 @@ impl<'t> Account<'t> {
         let resp: DryRunResult = self
             .tasty
             .post(
-                &format!(
-                    "/accounts/{}/orders/dry-run",
-                    self.inner.account.account_number.0
-                ),
+                &format!("/accounts/{}/orders/dry-run", self.account_number.0),
                 order,
             )
             .await?;
@@ -155,7 +162,7 @@ impl<'t> Account<'t> {
         let resp: OrderPlacedResult = self
             .tasty
             .post(
-                &format!("/accounts/{}/orders", self.inner.account.account_number.0),
+                &format!("/accounts/{}/orders", self.account_number.0),
                 order,
             )
             .await?;
@@ -166,7 +173,7 @@ impl<'t> Account<'t> {
         self.tasty
             .delete(&format!(
                 "/accounts/{}/orders/{}",
-                self.inner.account.account_number.0, id.0
+                self.account_number.0, id.0
             ))
             .await
     }

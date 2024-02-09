@@ -3,6 +3,7 @@ use reqwest::header::HeaderMap;
 use reqwest::header::HeaderValue;
 use reqwest::ClientBuilder;
 
+use reqwest_inspect_json::InspectJson;
 use serde::de::DeserializeOwned;
 
 use serde::Serialize;
@@ -14,6 +15,7 @@ use crate::api::base::Response;
 use crate::api::base::Result;
 use crate::api::base::TastyApiResponse;
 
+use crate::api::base::TastyError;
 //use crate::api::base::TastyError;
 use crate::api::login::LoginCredentials;
 use crate::api::login::LoginResponse;
@@ -143,11 +145,11 @@ impl TastyTrade {
             .query(query)
             .send()
             .await?
-            // .inspect_json::<TastyApiResponse<T>, TastyError>(move |text| {
-            //     println!("{:?}", std::any::type_name::<T>());
-            //     println!("{text}");
-            // })
-            .json::<TastyApiResponse<T>>()
+            .inspect_json::<TastyApiResponse<T>, TastyError>(move |text| {
+                println!("{:?}", std::any::type_name::<T>());
+                println!("{text}");
+            })
+            //.json::<TastyApiResponse<T>>()
             .await?;
 
         match result {

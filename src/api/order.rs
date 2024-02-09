@@ -117,7 +117,7 @@ impl AsSymbol for &Symbol {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(transparent)]
-pub struct OrderId(pub u64);
+pub struct OrderId(pub String);
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "kebab-case")]
@@ -165,11 +165,11 @@ pub struct Order {
 #[serde(rename_all = "kebab-case")]
 #[builder(setter(into))]
 pub struct OrderLeg {
-    instrument_type: InstrumentType,
-    symbol: Symbol,
+    pub instrument_type: InstrumentType,
+    pub symbol: Symbol,
     #[serde(with = "rust_decimal::serde::float")]
-    quantity: Decimal,
-    action: Action,
+    pub quantity: Decimal,
+    pub action: Action,
 }
 
 #[derive(Debug, Deserialize)]
@@ -197,6 +197,26 @@ pub struct DryRunRecord {
     pub time_in_force: TimeInForce,
     pub order_type: OrderType,
     pub size: u64,
+    pub underlying_symbol: Symbol,
+    #[serde(with = "rust_decimal::serde::arbitrary_precision")]
+    pub price: Decimal,
+    pub price_effect: PriceEffect,
+    pub status: OrderStatus,
+    pub cancellable: bool,
+    pub editable: bool,
+    pub edited: bool,
+    pub legs: Vec<OrderLeg>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+
+pub struct FullOrder {
+    pub id: OrderId,
+    pub account_number: AccountNumber,
+    pub time_in_force: TimeInForce,
+    pub order_type: OrderType,
+    pub size: Decimal,
     pub underlying_symbol: Symbol,
     #[serde(with = "rust_decimal::serde::arbitrary_precision")]
     pub price: Decimal,

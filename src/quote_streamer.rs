@@ -114,7 +114,7 @@ impl QuoteStreamer {
         let tokens = tasty.quote_streamer_tokens().await?;
 
         let mut this = Self {
-            host: tokens.streamer_url,
+            host: tokens.dxlink_url,
             token: tokens.token,
 
             connection: std::ptr::null_mut(),

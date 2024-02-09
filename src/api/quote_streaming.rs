@@ -10,7 +10,7 @@ use super::order::Symbol;
 
 impl TastyTrade {
     pub async fn quote_streamer_tokens(&self) -> Result<QuoteStreamerTokens> {
-        self.get("/quote-streamer-tokens").await
+        self.get("/api-quote-tokens").await
     }
 }
 
@@ -18,9 +18,10 @@ impl TastyTrade {
 #[serde(rename_all = "kebab-case")]
 pub struct QuoteStreamerTokens {
     pub token: String,
-    pub streamer_url: String,
-    pub websocket_url: String,
+    pub dxlink_url: String,
     pub level: String,
+    //pub streamer_url: String,
+    //pub websocket_url: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
