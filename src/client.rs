@@ -77,6 +77,10 @@ impl TastyTrade {
         })
     }
 
+    pub fn session_token(&self) -> &str {
+        &self.session_token
+    }
+
     fn create_client(creds: &LoginResponse) -> reqwest::Client {
         let mut headers = HeaderMap::new();
 
@@ -169,16 +173,19 @@ impl TastyTrade {
         U: AsRef<str>,
     {
         let url = format!("{}{}", self.base_url, url.as_ref());
+        let body = serde_json::to_string(&payload).unwrap();
+        println!("Sending body: {} to {}", body, url);
         let result = self
             .client
             .post(url)
-            .body(serde_json::to_string(&payload).unwrap())
+            .body(body)
             .send()
             .await?
-            //.inspect_json::<TastyApiResponse<R>, TastyError>(move |text| {
-            //    println!("{text}");
-            //})
-            .json::<TastyApiResponse<R>>()
+            .inspect_json::<TastyApiResponse<R>, TastyError>(move |text| {
+                println!("{:?}", std::any::type_name::<R>());
+                println!("{text}");
+            })
+            //.json::<TastyApiResponse<R>>()
             .await?;
 
         match result {

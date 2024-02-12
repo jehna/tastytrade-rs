@@ -18,7 +18,10 @@ impl TastyTrade {
         Ok(resp
             .items
             .into_iter()
-            .map(|inner| Account { inner, tasty: self })
+            .map(|inner| Account {
+                inner,
+                _tasty: self,
+            })
             .collect())
     }
 
@@ -73,7 +76,7 @@ pub struct AccountInner {
 
 pub struct Account<'t> {
     pub(crate) inner: AccountInner,
-    tasty: &'t TastyTrade,
+    _tasty: &'t TastyTrade,
 }
 
 pub struct AccountActions<'t> {
