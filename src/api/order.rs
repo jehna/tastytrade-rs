@@ -62,7 +62,7 @@ pub enum TimeInForce {
     IOC,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 pub enum OrderStatus {
     Received,
     Routed,
@@ -117,7 +117,7 @@ impl AsSymbol for &Symbol {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(transparent)]
-pub struct OrderId(pub String);
+pub struct OrderId(pub Decimal);
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "kebab-case")]
@@ -291,6 +291,6 @@ mod tests {
         let json = json!({
             "order":{"id":129359,"account-number":"5WU44237","time-in-force":"Day","order-type":"Limit","size":100,"underlying-symbol":"AAPL","underlying-instrument-type":"Equity","price":"181.01","price-effect":"Debit","status":"Received","cancellable":true,"editable":true,"edited":false,"received-at":"2024-02-11T21:59:57.143+00:00","updated-at":1234,"global-request-id":"153cc8811e19d5aba6c9bfa083251e56","legs":[{"instrument-type":"Equity","symbol":"AAPL","quantity":100,"remaining-quantity":100,"action":"Buy to Open","fills":[]}]},"warnings":[{"code":"tif_next_valid_sesssion","message":"Your order will begin working during next valid session."}],"buying-power-effect":{"change-in-margin-requirement":"9050.5","change-in-margin-requirement-effect":"Debit","change-in-buying-power":"9050.58","change-in-buying-power-effect":"Debit","current-buying-power":"10056.31","current-buying-power-effect":"Credit","new-buying-power":"1005.73","new-buying-power-effect":"Credit","isolated-order-margin-requirement":"9050.5","isolated-order-margin-requirement-effect":"Debit","is-spread":false,"impact":"9050.58","effect":"Debit"},"fee-calculation":{"regulatory-fees":"0.0","regulatory-fees-effect":"None","clearing-fees":"0.08","clearing-fees-effect":"Debit","commission":"0.0","commission-effect":"None","proprietary-index-option-fees":"0.0","proprietary-index-option-fees-effect":"None","total-fees":"0.08","total-fees-effect":"Debit"}
         }).to_string();
-        let res: OrderPlacedResult = serde_json::from_str(&json).unwrap();
+        let _res: OrderPlacedResult = serde_json::from_str(&json).unwrap();
     }
 }

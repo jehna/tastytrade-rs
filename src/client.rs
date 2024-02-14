@@ -200,15 +200,17 @@ impl TastyTrade {
         U: AsRef<str>,
     {
         let url = format!("{}{}", self.base_url, url.as_ref());
+        println!("DELETE {}", url);
         let result = self
             .client
             .delete(url)
             .send()
             .await?
-            // .inspect_json::<TastyApiResponse<R>, TastyError>(move |text| {
-            //     println!("{text}");
-            // })
-            .json::<TastyApiResponse<R>>()
+            .inspect_json::<TastyApiResponse<R>, TastyError>(move |text| {
+                println!("{:?}", std::any::type_name::<R>());
+                println!("{text}");
+            })
+            //.json::<TastyApiResponse<R>>()
             .await?;
 
         match result {

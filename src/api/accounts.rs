@@ -79,6 +79,12 @@ pub struct Account<'t> {
     _tasty: &'t TastyTrade,
 }
 
+impl Account<'_> {
+    pub fn id(&self) -> String {
+        self.inner.account.account_number.0.clone()
+    }
+}
+
 pub struct AccountActions<'t> {
     tasty: &'t TastyTrade,
     account_number: AccountNumber,
@@ -182,7 +188,7 @@ impl<'t> AccountActions<'t> {
     }
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "kebab-case")]
 pub struct Balance {
     pub account_number: AccountNumber,
